@@ -9,6 +9,7 @@ import sys, os, stat
 import time, datetime
 import wx
 import wx.calendar
+import KnobCtrl
 
 from fuji3get import Fuji3Get, VENDOR_NAME, CONF_NAME
 from fuji3get import BASE_DIR, DIR_FUJI, JPG_FUJI, URL_FUJI
@@ -43,6 +44,16 @@ class MyFrame(wx.Frame):
       style=wx.calendar.CAL_SHOW_HOLIDAYS | wx.calendar.CAL_SUNDAY_FIRST \
         | wx.calendar.CAL_SEQUENTIAL_MONTH_SELECTION)
     szv1h.Add(self.cal, 3, wx.EXPAND)
+    self.knob = KnobCtrl.KnobCtrl(pnv1, wx.NewId(), size=(64, 64))
+    self.knob.SetKnobRadius(6)
+    self.knob.SetAngularRange(-60, 240)
+    self.knob.SetTags(xrange(11))
+    self.knob.SetValue(50)
+    self.knob.SetTagsColour(wx.Colour(64, 64, 255))
+    self.knob.SetBoundingColour(wx.Colour(255, 255, 255))
+    self.knob.SetFirstGradientColour(wx.Colour(192, 192, 255))
+    self.knob.SetSecondGradientColour(wx.Colour(32, 32, 255))
+    szv1h.Add(self.knob, 1, wx.EXPAND)
     pnv1h1 = wx.Panel(pnv1, wx.NewId())
     szv1h1v = wx.BoxSizer(wx.VERTICAL)
     self.ffffup = wx.StaticText(pnv1h1, wx.NewId(), u'↑↑week↑↑', p, s, a)
@@ -68,13 +79,14 @@ class MyFrame(wx.Frame):
     self.ffffdown = wx.StaticText(pnv1h1, wx.NewId(), u'↓↓week↓↓', p, s, a)
     szv1h1v.Add(self.ffffdown, 0, wx.EXPAND)
     pnv1h1.SetSizer(szv1h1v)
-    szv1h.Add(pnv1h1, 2, wx.EXPAND)
+    szv1h.Add(pnv1h1, 1, wx.EXPAND)
     pnv1.SetSizer(szv1h)
     szv.Add(pnv1, 0, wx.EXPAND)
     self.SetSizer(szv)
     self.outofrange = False
     self.direc, self.po = -1, self.down # must change self.po sync self.direc
     self.po.SetBackgroundColour(self.hlc)
+    self.knob.SetValue(self.direc + 50)
     self.ymdhm_min = datetime.datetime.strptime(YMDHM_MIN, FMT_P)
     self.ymdhm = self.fuji3get.align600sec(datetime.datetime.now())
     self.pymdhm = self.ymdhm
@@ -95,6 +107,7 @@ class MyFrame(wx.Frame):
     self.ffffdown.Bind(wx.EVT_ENTER_WINDOW, self.OnMouseEvents)
     self.Bind(wx.calendar.EVT_CALENDAR, self.OnCalSelected, self.cal)
     self.Bind(wx.calendar.EVT_CALENDAR_MONTH, self.OnChangeMonth, self.cal)
+    self.Bind(KnobCtrl.KC_EVENT_ANGLE_CHANGED, self.OnAngleChanged, self.knob)
     self.intimer = False
     self.timer = wx.Timer(self, wx.NewId())
     self.Bind(wx.EVT_TIMER, self.OnTimer)
@@ -124,10 +137,13 @@ class MyFrame(wx.Frame):
     print s
 
   def OnCalSelected(self, ev):
-    print u'CalSelected'
+    print u'CalSelected %s' % ev.GetValue()
 
   def OnChangeMonth(self, ev):
-    print u'ChangeMonth'
+    print u'ChangeMonth %s' % ev.GetValue()
+
+  def OnAngleChanged(self, ev):
+    print u'AngleChanged %s' % ev.GetValue()
 
   def OnTimer(self, ev):
     if self.intimer: return
