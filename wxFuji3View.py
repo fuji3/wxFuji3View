@@ -10,7 +10,7 @@ import time, datetime
 import wx
 import wx.calendar
 
-import fuji3get
+from fuji3get import Fuji3Get, VENDOR_NAME, CONF_NAME
 from fuji3get import BASE_DIR, DIR_FUJI, JPG_FUJI, URL_FUJI
 from fuji3get import FMT_P, FMT_F, YMDHM_MIN
 
@@ -22,6 +22,7 @@ class MyFrame(wx.Frame):
   def __init__(self, *args, **kwargs):
     super(MyFrame, self).__init__(title=APP_TITLE,
       pos=(240, 120), size=(FRMW, FRMH), *args, **kwargs)
+    self.fuji3get = Fuji3Get()
     self.hlc = wx.Colour(208, 208, 255)
     self.bgc = wx.Colour(255, 255, 255)
     self.SetBackgroundColour(self.bgc)
@@ -75,7 +76,7 @@ class MyFrame(wx.Frame):
     self.direc, self.po = -1, self.down # must change self.po sync self.direc
     self.po.SetBackgroundColour(self.hlc)
     self.ymdhm_min = datetime.datetime.strptime(YMDHM_MIN, FMT_P)
-    self.ymdhm = fuji3get.align600sec(datetime.datetime.now()) # self.ymdhm_min
+    self.ymdhm = self.fuji3get.align600sec(datetime.datetime.now())
     self.pymdhm = self.ymdhm
     # self.Bind(wx.EVT_MOTION, self.OnMouseMotion)
     # self.Bind(wx.EVT_ENTER_WINDOW, self.OnMouseEnterWindow)
@@ -154,12 +155,12 @@ class MyFrame(wx.Frame):
     ymdhm = self.ymdhm + datetime.timedelta(0, dsec)
     t = datetime.datetime.timetuple(ymdhm)[:5]
     f = os.path.join(BASE_DIR, DIR_FUJI % t[:3], JPG_FUJI % t)
-    if not os.path.exists(f): fuji3get.getjpeg(t)
+    if not os.path.exists(f): self.fuji3get.getjpeg(t)
     if not os.path.exists(f): return self.emp
     if os.stat(f)[stat.ST_SIZE] == 0: return self.emp
     tfp = open(f, 'rb')
     if tfp:
-      jpg = fuji3get.chkjpeg(tfp.read(16))
+      jpg = self.fuji3get.chkjpeg(tfp.read(16))
       tfp.close()
       if not jpg: # Image file is not of type 17.
         os.remove(f)
