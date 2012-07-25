@@ -21,6 +21,7 @@ import sys, os, stat
 import re
 import time, datetime
 import urllib2
+import sl3conf
 
 USER_AGENT = 'fuji3bot/Python-urllib'
 VENDOR_NAME = u'fuji3get'
@@ -36,25 +37,13 @@ YMDHM_MIN = '201101010000'
 class Fuji3Get(object):
   def __init__(self):
     self.ERROR_COUNT = 0
-    fn = self.get_conf_file()
-    if not os.path.exists(fn): self.init_conf(fn)
-
-  def get_conf_dir(self):
-    userdir = os.path.expanduser('~')
-    if not os.path.isdir(userdir): os.mkdir(userdir)
-    vendordir = os.path.join(userdir, u'.%s' % VENDOR_NAME)
-    if not os.path.isdir(vendordir): os.mkdir(vendordir)
-    return vendordir
-
-  def get_conf_file(self):
-    return os.path.join(self.get_conf_dir(), u'%s.ini' % CONF_NAME)
-
-  def init_conf(self, fn):
-    conf = open(fn, 'wb')
-    if conf:
-      conf.write('cache_ask=%s\x0A' % True)
-      conf.write('cache_dir=%s\x0A' % BASE_DIR)
-      conf.close()
+    self.sl3conf = sl3conf.SL3Conf(VENDOR_NAME, CONF_NAME)
+    self.cache_ask = self.sl3conf.read('cache_ask')
+    if self.cache_ask is None:
+      self.sl3conf.write('cache_ask', 'True')
+      self.sl3conf.write('cache_dir', BASE_DIR)
+      self.cache_ask = self.sl3conf.read('cache_ask')
+    self.cache_dir = self.sl3conf.read('cache_dir')
 
   def chkjpeg(self, d, silent=True):
     if d[6:10] == 'JFIF': return True
@@ -63,7 +52,7 @@ class Fuji3Get(object):
     return False
 
   def getjpeg(self, ymdhm):
-    dir = os.path.join(BASE_DIR, DIR_FUJI % ymdhm[:3])
+    dir = os.path.join(self.cache_dir, DIR_FUJI % ymdhm[:3])
     outf = JPG_FUJI % ymdhm
     outfile = os.path.join(dir, outf)
     url = URL_FUJI % ymdhm

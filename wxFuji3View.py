@@ -11,8 +11,7 @@ import wx
 import wx.calendar
 import KnobCtrl
 
-from fuji3get import Fuji3Get, VENDOR_NAME, CONF_NAME
-from fuji3get import BASE_DIR, DIR_FUJI, JPG_FUJI, URL_FUJI
+from fuji3get import Fuji3Get, DIR_FUJI, JPG_FUJI, URL_FUJI
 from fuji3get import FMT_P, FMT_F, YMDHM_MIN
 
 APP_TITLE = u'wxFuji3View'
@@ -170,7 +169,7 @@ class MyFrame(wx.Frame):
   def BmpImgFile(self, dsec):
     ymdhm = self.ymdhm + datetime.timedelta(0, dsec)
     t = datetime.datetime.timetuple(ymdhm)[:5]
-    f = os.path.join(BASE_DIR, DIR_FUJI % t[:3], JPG_FUJI % t)
+    f = os.path.join(self.fuji3get.cache_dir, DIR_FUJI % t[:3], JPG_FUJI % t)
     if not os.path.exists(f): self.fuji3get.getjpeg(t)
     if not os.path.exists(f): return self.emp
     if os.stat(f)[stat.ST_SIZE] == 0: return self.emp
