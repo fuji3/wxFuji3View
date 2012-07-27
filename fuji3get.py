@@ -36,14 +36,14 @@ YMDHM_MIN = '201101010000'
 
 class Fuji3Get(object):
   def __init__(self):
-    self.ERROR_COUNT = 0
+    self.error_count = 0
     self.sl3conf = sl3conf.SL3Conf(VENDOR_NAME, CONF_NAME)
-    self.cache_ask = self.sl3conf.read('cache_ask')
+    self.cache_ask = self.sl3conf.read(u'cache_ask')
     if self.cache_ask is None:
-      self.sl3conf.write('cache_ask', 'True')
-      self.sl3conf.write('cache_dir', BASE_DIR)
-      self.cache_ask = self.sl3conf.read('cache_ask')
-    self.cache_dir = self.sl3conf.read('cache_dir')
+      self.sl3conf.write(u'cache_ask', u'True')
+      self.sl3conf.write(u'cache_dir', BASE_DIR)
+      self.cache_ask = self.sl3conf.read(u'cache_ask')
+    self.cache_dir = self.sl3conf.read(u'cache_dir')
 
   def chkjpeg(self, d, silent=True):
     if d[6:10] == 'JFIF': return True
