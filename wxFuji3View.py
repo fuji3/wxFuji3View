@@ -41,6 +41,7 @@ class MyFrame(wx.Frame):
     self.cal = wx.calendar.CalendarCtrl(pnv1, wx.NewId(),
       wx.DateTime_Now(), pos=(0, 0),
       style=wx.calendar.CAL_SHOW_HOLIDAYS | wx.calendar.CAL_SUNDAY_FIRST \
+        | wx.calendar.CAL_SHOW_SURROUNDING_WEEKS \
         | wx.calendar.CAL_SEQUENTIAL_MONTH_SELECTION)
     szv1h.Add(self.cal, 3, wx.EXPAND)
     self.knob = KnobCtrl.KnobCtrl(pnv1, wx.NewId(), size=(64, 64))
